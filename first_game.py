@@ -4,8 +4,10 @@ import pygame
 pygame.init()
 
 #dimenstions of the window
-WIDTH = 800
-HEIGHT = 600
+display_width = 800
+display_height = 600
+
+FPS = 30
 
 #Defining colors (rgb values)
 BACKGROUND_COLOR = (178, 217, 4)
@@ -15,7 +17,7 @@ red = (255, 0, 0)
 
 
 #set up the display
-gameDisplay = pygame.display.set_mode((WIDTH,HEIGHT))
+gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption("PyPyper")
 
 gameExit = False
@@ -25,6 +27,8 @@ lead_y = 300
 lead_x_change = 0
 lead_y_change = 0
 
+block_size = 5
+
 clock = pygame.time.Clock()
 
 while not gameExit:
@@ -33,35 +37,35 @@ while not gameExit:
 			gameExit = True
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_LEFT:
-				lead_x_change = -5
+				lead_x_change = -block_size
 				lead_y_change = 0
 			elif event.key == pygame.K_RIGHT:
-				lead_x_change = 5
+				lead_x_change = block_size
 				lead_y_change = 0
 			elif event.key == pygame.K_UP:
-				lead_y_change = -5
+				lead_y_change = -block_size
 				lead_x_change = 0
 			elif event.key == pygame.K_DOWN:
-				lead_y_change = 5
+				lead_y_change = block_size
 				lead_x_change = 0
 
 	# Defining the boundaries
-	if lead_x>=WIDTH or lead_x<0 or lead_y>=HEIGHT or lead_y<0:
+	if lead_x>=display_width or lead_x<0 or lead_y>=display_height or lead_y<0:
 			gameExit = True
 
 	lead_x += lead_x_change
 	lead_y += lead_y_change
 
 	gameDisplay.fill(BACKGROUND_COLOR)
-	#display, color, [start_x, start_y, width, height]
+	#display, color, [start_x, start_y, display_width, display_height]
 	#start_x, start_y => top-left corner of the object drawn
 	pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, 10, 100])
 	#pygame.draw.rect(gameDisplay, red, [400,300,10,10])
 	gameDisplay.fill(red, [lead_x, lead_y, 10, 10])
 	pygame.display.update()
 
-	#Define frames per second
-	clock.tick(20) 
+	#frames per second
+	clock.tick(FPS) 
 
 
 #exit
