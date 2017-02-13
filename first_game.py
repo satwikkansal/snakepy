@@ -1,5 +1,6 @@
 import pygame
 import time
+import random
 
 #initailize
 pygame.init()
@@ -21,6 +22,7 @@ BACKGROUND_COLOR = (178, 217, 4)
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
+blue = (0, 0, 255)
 
 
 #set up the display
@@ -42,6 +44,10 @@ def gameloop():
 	lead_y = display_height/2
 	lead_x_change = 0
 	lead_y_change = 0
+
+	appleX = random.randrange(0, display_width - block_size)
+	appleY = random.randrange(0, display_height - block_size)
+	
 	while not gameExit:
 		
 		while gameOver==True:
@@ -77,14 +83,11 @@ def gameloop():
 		lead_y += lead_y_change
 
 		gameDisplay.fill(BACKGROUND_COLOR)
-		#display, color, [start_x, start_y, display_width, display_height]
-		#start_x, start_y => top-left corner of the object drawn
-		pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, 10, 100])
-		#pygame.draw.rect(gameDisplay, red, [400,300,10,10])
-		gameDisplay.fill(red, [lead_x, lead_y, 10, 10])
+		pygame.draw.rect(gameDisplay, blue, [lead_x, lead_y, block_size, block_size])
+		pygame.draw.rect(gameDisplay, red, [appleX, appleY, block_size, block_size])
+		#gameDisplay.fill(red, [lead_x, lead_y, 10, 10])
 		pygame.display.update()
 
-		#frames per second
 		clock.tick(FPS) 
 
 	#exit
