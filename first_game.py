@@ -45,8 +45,8 @@ def gameloop():
 	lead_x_change = 0
 	lead_y_change = 0
 
-	appleX = random.randrange(0, display_width - block_size)
-	appleY = random.randrange(0, display_height - block_size)
+	appleX = round(random.randrange(0, display_width - block_size)/float(block_size))*block_size
+	appleY = round(random.randrange(0, display_height - block_size)/float(block_size))*block_size
 	
 	while not gameExit:
 		
@@ -87,6 +87,9 @@ def gameloop():
 		pygame.draw.rect(gameDisplay, red, [appleX, appleY, block_size, block_size])
 		#gameDisplay.fill(red, [lead_x, lead_y, 10, 10])
 		pygame.display.update()
+
+		if lead_x == appleX and lead_y==appleY:
+			print("Eat! you stupid!")
 
 		clock.tick(FPS) 
 
