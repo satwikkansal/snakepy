@@ -1,4 +1,5 @@
 import pygame
+import time
 
 #initailize
 pygame.init()
@@ -8,6 +9,12 @@ display_width = 800
 display_height = 600
 
 FPS = 30
+
+font = pygame.font.SysFont(None, 25)
+
+def message_to_screen(msg, color):
+	screen_text = font.render(msg, True, color)
+	gameDisplay.blit(screen_text, [display_width/2, display_height/2])
 
 #Defining colors (rgb values)
 BACKGROUND_COLOR = (178, 217, 4)
@@ -22,8 +29,8 @@ pygame.display.set_caption("PyPyper")
 
 gameExit = False
 
-lead_x = 300
-lead_y = 300
+lead_x = display_width/2
+lead_y = display_height/2
 lead_x_change = 0
 lead_y_change = 0
 
@@ -68,6 +75,9 @@ while not gameExit:
 	clock.tick(FPS) 
 
 
+message_to_screen('You Lose, Leave it for the humans!', red)
+pygame.display.update()
+time.sleep(2)
 #exit
 pygame.quit()
 quit()
