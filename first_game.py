@@ -21,6 +21,11 @@ while not gameExit:
 			gameExit = True
 
 	gameDisplay.fill(BACKGROUND_COLOR)
+	#display, color, [start_x, start_y, width, height]
+	#start_x, start_y => top-left corner of the object drawn
+	pygame.draw.rect(gameDisplay, black, [400,300,10,100])
+	#pygame.draw.rect(gameDisplay, red, [400,300,10,10])
+	gameDisplay.fill(red, [400,300,10,10])
 	pygame.display.update()
 
 
