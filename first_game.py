@@ -3,6 +3,10 @@ import pygame
 #initailize
 pygame.init()
 
+#dimenstions of the window
+WIDTH = 800
+HEIGHT = 600
+
 #Defining colors (rgb values)
 BACKGROUND_COLOR = (178, 217, 4)
 white = (255, 255, 255)
@@ -11,7 +15,7 @@ red = (255, 0, 0)
 
 
 #set up the display
-gameDisplay = pygame.display.set_mode((800,600))
+gameDisplay = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("PyPyper")
 
 gameExit = False
@@ -40,6 +44,10 @@ while not gameExit:
 			elif event.key == pygame.K_DOWN:
 				lead_y_change = 5
 				lead_x_change = 0
+
+	# Defining the boundaries
+	if lead_x>=WIDTH or lead_x<0 or lead_y>=HEIGHT or lead_y<0:
+			gameExit = True
 
 	lead_x += lead_x_change
 	lead_y += lead_y_change
