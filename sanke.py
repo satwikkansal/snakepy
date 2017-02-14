@@ -13,6 +13,10 @@ FPS = 30
 
 font = pygame.font.SysFont(None, 25)
 
+def snake(snakelist, block_size):
+	for x,y in snakelist:
+		pygame.draw.rect(gameDisplay, blue, [x, y, block_size, block_size])
+
 def message_to_screen(msg, color):
 	screen_text = font.render(msg, True, color)
 	gameDisplay.blit(screen_text, [display_width/2, display_height/2])
@@ -31,9 +35,15 @@ pygame.display.set_caption("PyPyper")
 
 
 
-block_size = 5
+block_size = 10
 
 clock = pygame.time.Clock()
+
+def initialize_random_position(display_width, display_height, block_size):
+	x = round(random.randrange(0, display_width - block_size)/float(block_size))*block_size
+	y = round(random.randrange(0, display_height - block_size)/float(block_size))*block_size
+	print(x,y)
+	return x,y
 
 def gameloop():
 
@@ -45,8 +55,10 @@ def gameloop():
 	lead_x_change = 0
 	lead_y_change = 0
 
-	appleX = round(random.randrange(0, display_width - block_size)/float(block_size))*block_size
-	appleY = round(random.randrange(0, display_height - block_size)/float(block_size))*block_size
+	snakelist = [(lead_x, lead_y)]
+	snakeLength = 5
+
+	appleX, appleY = initialize_random_position(display_width, display_height, block_size)	
 	
 	while not gameExit:
 		
@@ -82,15 +94,23 @@ def gameloop():
 		lead_x += lead_x_change
 		lead_y += lead_y_change
 
+		snake_head = (lead_x, lead_y)
+		snakelist.append(snake_head)
+
 		gameDisplay.fill(BACKGROUND_COLOR)
-		pygame.draw.rect(gameDisplay, blue, [lead_x, lead_y, block_size, block_size])
+		
 		pygame.draw.rect(gameDisplay, red, [appleX, appleY, block_size, block_size])
-		#gameDisplay.fill(red, [lead_x, lead_y, 10, 10])
+		
+		if len(snakelist) > snakeLength:
+			del(snakelist[0])
+		snake(snakelist, block_size)
 		pygame.display.update()
 
 		if lead_x == appleX and lead_y==appleY:
 			print("Eat! you stupid!")
-
+			appleX, appleY = initialize_random_position(display_width, display_height, block_size)
+			snakeLength += 3
+			snakelist.append((appleX, appleY))
 		clock.tick(FPS) 
 
 	#exit
