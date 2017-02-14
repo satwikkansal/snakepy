@@ -10,16 +10,29 @@ display_width = 800
 display_height = 600
 
 FPS = 30
+	
+font = pygame.font.SysFont("ubuntu", 25)
+largefont = pygame.font.SysFont(None, 40)
 
-font = pygame.font.SysFont(None, 25)
+icon = pygame.image.load('icon.ico')
+pygame.display.set_icon(icon)
 
 def snake(snakelist, block_size):
 	for x,y in snakelist:
 		pygame.draw.rect(gameDisplay, blue, [x, y, block_size, block_size])
 
-def message_to_screen(msg, color):
-	screen_text = font.render(msg, True, color)
-	gameDisplay.blit(screen_text, [display_width/2, display_height/2])
+def score(score):
+	text = largefont.render("Score: "+str(score), True, black)
+	gameDisplay.blit(text, [10,10])
+
+def create_text_object(text, color):
+	textSurface = font.render(text, True, color)
+	return textSurface, textSurface.get_rect()
+
+def message_to_screen(msg, color, y_displace=0):
+	textSurf, textRect =  create_text_object(msg, color)
+	textRect.center = (display_width/2), (display_height/2)+y_displace
+	gameDisplay.blit(textSurf, textRect)
 
 #Defining colors (rgb values)
 BACKGROUND_COLOR = (178, 217, 4)
@@ -107,6 +120,9 @@ def gameloop():
 		if snake_head in snakelist[:-1]:
 			gameOver = True
 		snake(snakelist, block_size)
+
+		score(snakeLength-1)
+
 		pygame.display.update()
 
 		if lead_x == appleX and lead_y==appleY:
