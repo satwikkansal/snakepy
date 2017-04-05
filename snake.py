@@ -60,26 +60,34 @@ def initialize_random_position(display_width, display_height, block_size):
 	print(x, y)
 	return x, y
 
+# Directions
+ALLOWED_DIRS = ["LEFT", "RIGHT", "UP", "DOWN"]
+
 def move(x, y, block_size, direction):
 	x_change = 0
 	y_change = 0
-	
-	if direction == "LEFT":
-		x_change = -block_size
-		y_change = 0
-	elif direction == "RIGHT":
-		x_change = block_size
-		y_change = 0
-	elif direction == "UP":
-		x_change = 0
-		y_change = -block_size
-	elif direction == "DOWN":
-		x_change = 0
-		y_change = block_size
+	if direction in ALLOWED_DIRS:
+		if direction == "LEFT":
+			x_change = -block_size
+			y_change = 0
+		elif direction == "RIGHT":
+			x_change = block_size
+			y_change = 0
+		elif direction == "UP":
+			x_change = 0
+			y_change = -block_size
+		elif direction == "DOWN":
+			x_change = 0
+			y_change = block_size
 	else:
-		print("Invalid direction!")
+		print("Invalid direction.")
 
 	return x+x_change, y+y_change
+
+def random_move(x, y, block_size, not_required=None):
+	# pick any direction
+	d = random.choice(ALLOWED_DIRS)
+	return move(x, y, block_size, d)
 
 def gameloop():
 
@@ -121,7 +129,7 @@ def gameloop():
 				elif event.key == pygame.K_DOWN:
 					direction = 'DOWN'
 
-		lead_x, lead_y = move(lead_x, lead_y, block_size, direction)
+		lead_x, lead_y = random_move(lead_x, lead_y, block_size, direction)
 
 		# Defining the boundaries
 		if lead_x>=display_width or lead_x<0 or lead_y>=display_height or lead_y<0:
