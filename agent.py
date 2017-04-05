@@ -2,42 +2,17 @@ import random
 import numpy
 import operator
 
-
-from environment import Agent, Environment
-from planner import RoutePlanner
-from simulator import Simulator
-
-
-#RoutePlanner = Function to get next goal (Apple's location)
+from snake import act
 
 class Agent(object):
     """Base class for all agents."""
 
-    def __init__(self, env):
-        self.env = env
-        self.state = None
-        self.next_goal = None
-
-    def reset(self, destination=None):
-        pass
-
-    def update(self, t):
-        pass
-
-    def get_state(self):
-        return self.state
-
-    def get_next_goal(self):
-        return self.next_goal
-
-class LearningAgent(Agent):
-    
-    """An agent snake that learns to thrive in the evil world."""
-
-    def __init__(self, env):
-        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_goal = None, and a default color
-        self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
-        
+    def __init__(self,
+                 state=None,
+                 env= Environment()):
+        self.state = state
+        self.env.valid_actions = valid_actions
+        self.next_goal = next_goal
         self.q_table = {}
         self.reward = 0
         self.alpha = 0.3
@@ -48,59 +23,129 @@ class LearningAgent(Agent):
         self.counts = 0.0
 
     def reset(self, destination=None):
-        self.planner.route_to(destination)
         self.reward = 0
 
-    def update(self, t):
-        # Gather inputs
-        self.next_goal = self.planner.next_waypoint()  # from route planner, also displayed by simulator
-        inputs = self.env.sense(self)
-
-        self.state = inputs
-        self.state['next_waypoint'] = self.next_goal
-        self.state = tuple(self.state.values())
-        
-        if not self.state in self.q_table:
-            self.q_table[self.state] = {ac:0 for ac in self.env.valid_actions}
-
-        self.counts +=1
-
-        
-        #Select action according to your policy
-        #We'll choose maximum q_value action or random action depending on the comparison result from epsilon
+    def update(self, next_action):
         max_q = 0
-        action = random.choice(self.env.valid_actions)
+
+        if not self.state in self.q_table:
+            self.q_table[self.state] = {ac:0 for ac in self.valid_actions}
+
+        action = random.choice(self.valid_actions)
         random_action = action
 
         if numpy.random.random()>self.epsilon:            
             action = max(self.q_table[self.state].iteritems(), key=operator.itemgetter(1))[0]
 
-        # Execute action and get reward
-        reward = self.env.act(self, action)
-        if reward<-0.5:
-            self.penalties.append(1)
-        else:
-            self.penalties.append(0)
+        # Execute action and get reward and next_state
+        next_state, reward = act(state, action)
+
+        # If we get a -ve reward, append to penalties
+        # if reward<-1:
+        #     self.penalties.append(1)
+        # else:
+        #     self.penalties.append(0)
+
         self.total_reward += reward
 
         #get the next state information
-        new_inputs = self.env.sense(self)
-        new_waypoint = self.planner.next_waypoint()
-        self.next_state = new_inputs
-        self.next_state['next_waypoint'] = new_goal
-        self.next_state = tuple(self.next_state.values())
+        # new_inputs = self.env.sense(self)
+        # new_waypoint = self.planner.next_waypoint()
+        self.next_state = next_state
+        # self.next_state['next_waypoint'] = new_goal
+        # self.next_state = tuple(self.next_state.values())
 
         #check if next_state has q_values already
         if self.next_state not in self.q_table:
             self.q_table[self.next_state] = {ac:0 for ac in self.env.valid_actions}
 
-        # TODO: Learn policy based on state, action, reward
+        # Learn policy based on state, action, reward
         old_q_value = self.q_table[self.state][action]
+
         #maximum q_value for next_state actions
         next_max = max(self.q_table[self.next_state].values())
+
+        # calculate the q_value for the next_max action.
         new_q_value = (1 - self.alpha)*old_q_value + self.alpha*(reward + self.gamma*next_max)
         self.q_table[self.state][action] = new_q_value
-        print "LearningAgent.update(): inputs = {}, action = {}, reward = {}".format(inputs, action, reward)  # [debug]
+        print "LearningAgent.update(): state = {}, action = {}, reward = {}".format(state, action, reward)  # [debug]
+
+
+    def get_state(self):
+        return self.state
+
+    def get_next_goal(self):
+        return self.next_goal
+
+
+
+
+
+
+# class LearningAgent(Agent):
+    
+#     """An agent snake that learns to thrive in the evil world."""
+
+#     def __init__(self, env):
+#         super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_goal = None, and a default color
+#         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
+        
+        
+
+#     def reset(self, destination=None):
+#         self.planner.route_to(destination)
+#         self.reward = 0
+
+#     def update(self, t):
+#         # Gather inputs
+#         self.next_goal = self.planner.next_waypoint()  # from route planner, also displayed by simulator
+#         inputs = self.env.sense(self)
+
+#         self.state = inputs
+#         self.state['next_waypoint'] = self.next_goal
+#         self.state = tuple(self.state.values())
+        
+#         if not self.state in self.q_table:
+#             self.q_table[self.state] = {ac:0 for ac in self.env.valid_actions}
+
+#         self.counts +=1
+
+        
+#         #Select action according to your policy
+#         #We'll choose maximum q_value action or random action depending on the comparison result from epsilon
+#         max_q = 0
+#         action = random.choice(self.env.valid_actions)
+#         random_action = action
+
+#         if numpy.random.random()>self.epsilon:            
+#             action = max(self.q_table[self.state].iteritems(), key=operator.itemgetter(1))[0]
+
+#         # Execute action and get reward
+#         reward = self.env.act(self, action)
+#         if reward<-0.5:
+#             self.penalties.append(1)
+#         else:
+#             self.penalties.append(0)
+#         self.total_reward += reward
+
+#         #get the next state information
+#         new_inputs = self.env.sense(self)
+#         new_waypoint = self.planner.next_waypoint()
+#         self.next_state = new_inputs
+#         self.next_state['next_waypoint'] = new_goal
+#         self.next_state = tuple(self.next_state.values())
+
+#         #check if next_state has q_values already
+#         if self.next_state not in self.q_table:
+#             self.q_table[self.next_state] = {ac:0 for ac in self.env.valid_actions}
+
+#         # TODO: Learn policy based on state, action, reward
+#         old_q_value = self.q_table[self.state][action]
+#         #maximum q_value for next_state actions
+#         next_max = max(self.q_table[self.next_state].values())
+#         new_q_value = (1 - self.alpha)*old_q_value + self.alpha*(reward + self.gamma*next_max)
+#         self.q_table[self.state][action] = new_q_value
+#         print "LearningAgent.update(): inputs = {}, action = {}, reward = {}".format(inputs, action, reward)  # [debug]
 
 
 def run():
