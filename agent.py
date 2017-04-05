@@ -2,17 +2,13 @@ import random
 import numpy
 import operator
 
-from snake import act
-
 class Agent(object):
     """Base class for all agents."""
 
     def __init__(self,
-                 state=None,
                  env= Environment()):
-        self.state = state
-        self.env.valid_actions = valid_actions
-        self.next_goal = next_goal
+
+        self.env = env
         self.q_table = {}
         self.reward = 0
         self.alpha = 0.3
@@ -25,35 +21,27 @@ class Agent(object):
     def reset(self, destination=None):
         self.reward = 0
 
-    def update(self, next_action):
+    def update(self):
         max_q = 0
+        
+        self.state = env.get_state()
 
         if not self.state in self.q_table:
             self.q_table[self.state] = {ac:0 for ac in self.valid_actions}
 
-        action = random.choice(self.valid_actions)
+        action = random.choice(self.env.valid_actions)
         random_action = action
 
+        # Exploration v/s exploitation
         if numpy.random.random()>self.epsilon:            
             action = max(self.q_table[self.state].iteritems(), key=operator.itemgetter(1))[0]
 
         # Execute action and get reward and next_state
-        next_state, reward = act(state, action)
-
-        # If we get a -ve reward, append to penalties
-        # if reward<-1:
-        #     self.penalties.append(1)
-        # else:
-        #     self.penalties.append(0)
+        reward = env.act(action)
 
         self.total_reward += reward
 
-        #get the next state information
-        # new_inputs = self.env.sense(self)
-        # new_waypoint = self.planner.next_waypoint()
-        self.next_state = next_state
-        # self.next_state['next_waypoint'] = new_goal
-        # self.next_state = tuple(self.next_state.values())
+        self.next_state = env.get_state()
 
         #check if next_state has q_values already
         if self.next_state not in self.q_table:
@@ -70,12 +58,6 @@ class Agent(object):
         self.q_table[self.state][action] = new_q_value
         print "LearningAgent.update(): state = {}, action = {}, reward = {}".format(state, action, reward)  # [debug]
 
-
-    def get_state(self):
-        return self.state
-
-    def get_next_goal(self):
-        return self.next_goal
 
 
 

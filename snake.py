@@ -8,8 +8,9 @@ import random
 pygame.init()
 
 #dimenstions of the window
-DISPLAY_WIDTH = 800
+DISPLAY_WIDTH = 600
 DISPLAY_HEIGHT = 600
+BLOCK_SIZE = 30
 
 FPS = 20
 
@@ -52,14 +53,15 @@ blue = (0, 0, 255)
 gameDisplay = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 pygame.display.set_caption("PyPyper")
 
-BLOCK_SIZE = 10
 
 clock = pygame.time.Clock()
 
 def initialize_random_position(display_width, display_height, block_size):
-	x = round(random.randrange(0, display_width - block_size)/float(block_size))*block_size
-	y = round(random.randrange(0, display_height - block_size)/float(block_size))*block_size
-	print(x, y)
+	x = random.randrange(0, display_width, step=block_size)
+	y = random.randrange(0, display_height, step=block_size)
+	# x = round(random.randrange(0, display_width - block_size,)/float(block_size))*block_size
+	# y = round(random.randrange(0, display_height - block_size)/float(block_size))*block_size
+	# print(x, y)
 	return x, y
 
 # Directions
@@ -129,11 +131,11 @@ class Environment(object):
 		left, right, up, down = False, False, False, False
 		if self.lead_x - self.block_size < 0:
 			left = True
-		if self.lead_x + self.block_size > self.world_width:
+		if self.lead_x + self.block_size >= self.world_width:
 			right = True
 		if self.lead_y - self.block_size < 0:
 			up = True
-		if self.lead_y + self.block_size > self.world_height:
+		if self.lead_y + self.block_size >= self.world_height:
 			down = True
 
 		return {
@@ -155,7 +157,8 @@ class Environment(object):
 		return (self.appleX, self.appleY)
 
 	def is_goal_state(self, x, y):
-		if x == self.appleX and y == self.appleY:
+		if (x-self.block_size < self.appleX <x + self.block_size  and 
+			y-self.block_size < self.appleY <y + self.block_size):
 			return True
 		return False
 
@@ -166,7 +169,7 @@ class Environment(object):
 		return self.appleX, self.appleY
 
 	def new_apple(self):
-		self.appleX, self.appleY = initialize_random_position(self.world_width, self.world_width, self.block_size)
+		self.appleX, self.appleY = initialize_random_position(self.world_width, self.world_height, self.block_size)
 
 
 def gameloop():	
@@ -206,9 +209,6 @@ def gameloop():
 					direction = 'UP'
 				elif event.key == pygame.K_DOWN:
 					direction = 'DOWN'
-
-
-		
 		
 		# Draw apple and background
 		gameDisplay.fill(BACKGROUND_COLOR)
@@ -242,56 +242,10 @@ def gameloop():
 			score(snakeLength-1)
 
 		pygame.display.update()
-
-			# if lead_x == appleX and lead_y==appleY:
-			# 	print("Eat! you stupid!")
-			# 	appleX, appleY = initialize_random_position(display_width, display_height, block_size)
-
-			# when the snake eats the apple
-			
-		
 		clock.tick(FPS)
 
 	#exit
 	pygame.quit()
 	quit()
-
-
-
-
-	# 	#lead_x, lead_y = random_move(lead_x, lead_y, block_size, direction)
-
-	# 	# Defining the boundaries
-	# 	if lead_x>=display_width or lead_x<0 or lead_y>=display_height or lead_y<0:
-	# 			gameOver = True
-
-	# 	snake_head = (lead_x, lead_y)
-	# 	snakelist.append(snake_head)
-
-	# 	gameDisplay.fill(BACKGROUND_COLOR)
-		
-	# 	pygame.draw.rect(gameDisplay, red, [appleX, appleY, block_size, block_size])
-		
-	# 	if len(snakelist) > snakeLength:
-	# 		del(snakelist[0])
-
-	# 	#when snake runs into itself
-	# 	if snake_head in snakelist[:-1]:
-	# 		gameOver = True
-	# 	snake(snakelist, block_size)
-
-	# 	score(snakeLength-1)
-
-	# 	pygame.display.update()
-
-	# 	if lead_x == appleX and lead_y==appleY:
-	# 		print("Eat! you stupid!")
-	# 		appleX, appleY = initialize_random_position(display_width, display_height, block_size)
-	# 		snakeLength += 1
-	# 	clock.tick(FPS) 
-
-	# #exit
-	# pygame.quit()
-	# quit()
 
 gameloop()
