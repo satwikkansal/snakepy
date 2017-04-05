@@ -8,8 +8,8 @@ import random
 pygame.init()
 
 #dimenstions of the window
-display_width = 800
-display_height = 600
+DISPLAY_WIDTH = 800
+DISPLAY_HEIGHT = 600
 
 FPS = 20
 
@@ -37,7 +37,7 @@ def create_text_object(text, color):
 
 def message_to_screen(msg, color, y_displace=0):
 	textSurf, textRect =  create_text_object(msg, color)
-	textRect.center = (display_width/2), (display_height/2)+y_displace
+	textRect.center = (DISPLAY_WIDTH/2), (DISPLAY_HEIGHT/2)+y_displace
 	gameDisplay.blit(textSurf, textRect)
 
 #Defining colors (rgb values)
@@ -49,10 +49,10 @@ blue = (0, 0, 255)
 
 
 #set up the display
-gameDisplay = pygame.display.set_mode((display_width,display_height))
+gameDisplay = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 pygame.display.set_caption("PyPyper")
 
-block_size = 10
+BLOCK_SIZE = 10
 
 clock = pygame.time.Clock()
 
@@ -67,14 +67,24 @@ ALLOWED_DIRS = ["LEFT", "RIGHT", "UP", "DOWN"]
 
 
 class Environment(object):
-	def __init__(self):
+	def __init__(self,
+		         display_width,
+		         display_height,
+		         block_size,
+		         valid_directions):
 
+		self.world_width = display_width
+		self.world_height = display_height
+		self.block_size = block_size
 		self.lead_x = display_width/2
 		self.lead_y = display_height/2
 		self.lead_x_change = 0
 		self.lead_y_change = 0
+		self.valid_actions = valid_directions
 
-		self.appleX, self.appleY = initialize_random_position(display_width, display_height, block_size)
+		self.appleX, self.appleY = initialize_random_position(self.world_width,
+			                                                  self.world_height,
+			                                                  self.block_size)
 
 	def act(self, action):
 		'''
@@ -98,17 +108,17 @@ class Environment(object):
 		
 		if direction in ALLOWED_DIRS:
 			if direction == "LEFT":
-				x_change = -block_size
+				x_change = -self.block_size
 				y_change = 0
 			elif direction == "RIGHT":
-				x_change = block_size
+				x_change = self.block_size
 				y_change = 0
 			elif direction == "UP":
 				x_change = 0
-				y_change = -block_size
+				y_change = -self.block_size
 			elif direction == "DOWN":
 				x_change = 0
-				y_change = block_size
+				y_change = self.block_size
 		else:
 			print("Invalid direction.")
 
@@ -117,13 +127,13 @@ class Environment(object):
 
 	def is_wall_nearby(self):
 		left, right, up, down = False, False, False, False
-		if self.lead_x - block_size <= 0:
+		if self.lead_x - self.block_size < 0:
 			left = True
-		if self.lead_x + block_size >= display_width:
+		if self.lead_x + self.block_size > self.world_width:
 			right = True
-		if self.lead_y - block_size <= 0:
+		if self.lead_y - self.block_size < 0:
 			up = True
-		if self.lead_y + block_size >= display_height:
+		if self.lead_y + self.block_size > self.world_height:
 			down = True
 
 		return {
@@ -156,11 +166,15 @@ class Environment(object):
 		return self.appleX, self.appleY
 
 	def new_apple(self):
-		self.appleX, self.appleY = initialize_random_position(display_width, display_height, block_size)
+		self.appleX, self.appleY = initialize_random_position(self.world_width, self.world_width, self.block_size)
 
 
-def gameloop():		
-	env = Environment()
+def gameloop():	
+	# Initialize the environment	
+	env = Environment(DISPLAY_WIDTH,
+		              DISPLAY_HEIGHT,
+		              BLOCK_SIZE,
+		              ALLOWED_DIRS)
 
 	#agent = Agent(initial_state, ALLOWED_DIRS, initial_goal)
 
@@ -223,8 +237,8 @@ def gameloop():
 			if reward > 0:
 				snakeLength += 1
 
-			pygame.draw.rect(gameDisplay, red, [apple[0], apple[1], block_size, block_size])
-			draw_snake(snakelist, block_size)
+			pygame.draw.rect(gameDisplay, red, [apple[0], apple[1], BLOCK_SIZE, BLOCK_SIZE])
+			draw_snake(snakelist, BLOCK_SIZE)
 			score(snakeLength-1)
 
 		pygame.display.update()
