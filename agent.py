@@ -37,9 +37,6 @@ class Agent(object):
                 pass
             else:
                 action = max(self.q_table[self.state].iteritems(), key=operator.itemgetter(1))[0]
-            print("random",random_action)
-            print("exploitation", action)          
-
         return action
 
 
@@ -62,7 +59,8 @@ class Agent(object):
         # calculate the q_value for the next_max action.
         new_q_value = (1 - self.alpha)*old_q_value + self.alpha*(reward + self.gamma*next_max)
         self.q_table[self.state][action] = new_q_value
-        print "LearningAgent.update(): state = {}, action = {}, reward = {}".format(self.state, action, reward)  # [debug]
+        if random.randrange(0,5000) == 5:
+            print "LearningAgent.update(): state = {}, action = {}, reward = {}".format(self.state, action, reward)  # [debug]
 
 
 def run():

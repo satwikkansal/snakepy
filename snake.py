@@ -12,7 +12,7 @@ DISPLAY_WIDTH = 600
 DISPLAY_HEIGHT = 600
 BLOCK_SIZE = 30
 
-FPS = 20
+FPS = 1000
 
 font = pygame.font.SysFont("ubuntu", 25)
 largefont = pygame.font.SysFont(None, 40)
@@ -26,7 +26,7 @@ def draw_snake(snakelist, block_size):
 		pygame.draw.rect(gameDisplay, blue, [x, y, block_size, block_size])
 
 
-def score(score):
+def display_score(score):
 	text = largefont.render("Score: "+str(score), True, black)
 	gameDisplay.blit(text, [10,10])
 
@@ -84,6 +84,8 @@ class Environment(object):
 		self.lead_y_change = 0
 		self.valid_actions = valid_directions
 
+		self.highest_score_so_far = -1
+
 		self.appleX, self.appleY = initialize_random_position(self.world_width,
 			                                                  self.world_height,
 			                                                  self.block_size)
@@ -100,7 +102,7 @@ class Environment(object):
 		else:
 			self.move(action)
 			if self.is_goal_state(self.lead_x, self.lead_y):
-				reward = 5
+				reward = 20
 				self.new_apple()
 		return reward
 
@@ -149,6 +151,7 @@ class Environment(object):
 
 		head_position = self.get_head_position()
 		apple_position = self.get_appple_position()
+		# apple_quadrant = self.get_apple_quadrant()
 		wall_info = tuple(self.is_wall_nearby().values())
 		
 		# concatenating the tuples
@@ -172,85 +175,115 @@ class Environment(object):
 	def new_apple(self):
 		self.appleX, self.appleY = initialize_random_position(self.world_width, self.world_height, self.block_size)
 
+	def get_apple_quadrant(self):
+		appleX, appleY = self.get_appple_position()
+		x, y = self.get_head_position()
+		quadrant = 0
 
-def gameloop():	
-	# Initialize the environment	
-	env = Environment(DISPLAY_WIDTH,
-		              DISPLAY_HEIGHT,
-		              BLOCK_SIZE,
-		              ALLOWED_DIRS)
+		#shift the origin
+		appleX -= x
+		appleY -= y
 
-	agent = Agent(env)
+		if appleX > 0 and appleY > 0: 
+			quadrant = 1
+		elif appleX < 0 and appleY > 0:
+			quadrant = 2
+		elif appleX < 0 and appleY < 0:
+			quadrant = 3
+		elif appleX > 0 and appleY < 0:
+			quadrant = 4
+		elif appleX == 0:
+			if appleY > 0:
+				quadrant = random.choice([1, 2])
+			if appleY < 0:
+				quadrant = random.choice([3, 4])
+		elif appleY == 0:
+			if appleX > 0:
+				quadrant = random.choice([1, 4])
+			if appleX < 0:
+				quadrant = random.choice([2, 3])
+		return quadrant
 
-	gameExit = False
-	gameOver = False
+	def set_high_score(self, val):
+		self.highest_score_so_far = val
 
-	snakelist = []
-	snakeLength = 1
+	def high_score(self):
+		return self.highest_score_so_far
 
-	direction = ''
-	while not gameExit:
-		while gameOver==True:
-			gameDisplay.fill(white)
-			message_to_screen("Game over! Restarting...", red)
-			pygame.display.update()
-			time.sleep(1)
-			gameloop()
+# Initialize the environment	
+env = Environment(DISPLAY_WIDTH,
+	              DISPLAY_HEIGHT,
+	              BLOCK_SIZE,
+	              ALLOWED_DIRS)
+
+agent = Agent(env)
+
+gameExit = False
+gameOver = False
+
+snakelist = []
+snakeLength = 1
+
+direction = ''
+
+while True:
+	
+	# for event in pygame.event.get():
+	# 	if event.type == pygame.QUIT:
+	# 		gameExit = True
+	# 		gameOver = False
+	# 	if event.type == pygame.KEYDOWN:
+	# 		if event.key == pygame.K_LEFT:
+	# 			direction = 'LEFT'
+	# 		elif event.key == pygame.K_RIGHT:
+	# 			direction = 'RIGHT'
+	# 		elif event.key == pygame.K_UP:
+	# 			direction = 'UP'
+	# 		elif event.key == pygame.K_DOWN:
+	# 			direction = 'DOWN'
+
+	direction = agent.get_action()
+	
+	# Draw apple and background
+	gameDisplay.fill(BACKGROUND_COLOR)
+	apple = env.get_appple_position()
+
+	if direction:
 		
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				gameExit = True
-				gameOver = False
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_LEFT:
-					direction = 'LEFT'
-				elif event.key == pygame.K_RIGHT:
-					direction = 'RIGHT'
-				elif event.key == pygame.K_UP:
-					direction = 'UP'
-				elif event.key == pygame.K_DOWN:
-					direction = 'DOWN'
+		reward = env.act(direction)
 
-		direction = agent.get_action()
+		agent.update(direction, reward)
+
+		# Head of the snake
+		snake_head = env.get_head_position()
+		snakelist.append(snake_head)
+		score = snakeLength-1
+
+		# check if the snake hit the wall
+		if reward < -1:
+			gameOver = True
+			if score > env.high_score():
+				print("score:",score, env.high_score())
+				env.set_high_score(score)
+				snakelist = []
+				snakeLength = 1
 		
-		# Draw apple and background
-		gameDisplay.fill(BACKGROUND_COLOR)
-		apple = env.get_appple_position()
+		if len(snakelist) > snakeLength:
+			del(snakelist[0])
 
-		if direction:
-			
-			reward = env.act(direction)
-			print(reward)
+		#when snake runs into itself
+		# if snake_head in snakelist[:-1] and snakeLength>1:
+		# 	print("snake ran over itself",snakeLength-1)
+		# 	gameOver = True
 
-			agent.update(direction, reward)
+		if reward > 0:
+			snakeLength += 1
 
-			# Head of the snake
-			snake_head = env.get_head_position()
-			snakelist.append(snake_head)
-			# check if the snake hit the wall
-			if reward < -1:
-				gameOver = True
-			
-			if len(snakelist) > snakeLength:
-				del(snakelist[0])
+		pygame.draw.rect(gameDisplay, red, [apple[0], apple[1], BLOCK_SIZE, BLOCK_SIZE])
+		draw_snake(snakelist, BLOCK_SIZE)
+		display_score(snakeLength-1)
 
-			#when snake runs into itself
-			if snake_head in snakelist[:-1] and snakeLength>1:
-				print("snake ran over itself")
-				gameOver = True
+	pygame.display.update()
+	clock.tick(FPS)
 
-			if reward > 0:
-				snakeLength += 1
 
-			pygame.draw.rect(gameDisplay, red, [apple[0], apple[1], BLOCK_SIZE, BLOCK_SIZE])
-			draw_snake(snakelist, BLOCK_SIZE)
-			score(snakeLength-1)
-
-		pygame.display.update()
-		clock.tick(FPS)
-
-	#exit
-	pygame.quit()
-	quit()
-
-gameloop()
