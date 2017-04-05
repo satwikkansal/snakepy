@@ -2,7 +2,7 @@ import pygame
 import time
 import random
 
-#from agent import Agent
+from agent import Agent
 
 #initailize
 pygame.init()
@@ -179,7 +179,7 @@ def gameloop():
 		              BLOCK_SIZE,
 		              ALLOWED_DIRS)
 
-	#agent = Agent(initial_state, ALLOWED_DIRS, initial_goal)
+	agent = Agent(env)
 
 	gameExit = False
 	gameOver = False
@@ -209,6 +209,8 @@ def gameloop():
 					direction = 'UP'
 				elif event.key == pygame.K_DOWN:
 					direction = 'DOWN'
+
+		direction = agent.get_action()
 		
 		# Draw apple and background
 		gameDisplay.fill(BACKGROUND_COLOR)
@@ -218,6 +220,8 @@ def gameloop():
 			
 			reward = env.act(direction)
 			print(reward)
+
+			agent.update(direction, reward)
 			
 			# Head of the snake
 			snake_head = env.get_head_position()
