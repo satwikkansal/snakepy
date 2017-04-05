@@ -148,10 +148,11 @@ class Environment(object):
 	def get_state(self):
 
 		head_position = self.get_head_position()
+		apple_position = self.get_appple_position()
 		wall_info = tuple(self.is_wall_nearby().values())
 		
 		# concatenating the tuples
-		return head_position + wall_info
+		return head_position + apple_position + wall_info
 		
 	def get_next_goal(self):
 		return (self.appleX, self.appleY)
@@ -222,7 +223,7 @@ def gameloop():
 			print(reward)
 
 			agent.update(direction, reward)
-			
+
 			# Head of the snake
 			snake_head = env.get_head_position()
 			snakelist.append(snake_head)
