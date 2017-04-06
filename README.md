@@ -18,3 +18,12 @@ As of now, it uses Q-learning algorithm to decide the next move and it really ge
 ## Current Status
 
 ![GIF output](https://github.com/satwikkansal/snakepy/blob/master/outputs/out.gif)
+
+PS: The rule of "snake-biting itself and getting killed" was disabled while taking this screencast.
+
+## Next Steps
+
+- Add Length of the sanke to state
+- Apply state space optimizations to reduce the state space.
+- Implement SARSA and compare results.
+- Integrate Deep Q-Learning and compare results.
