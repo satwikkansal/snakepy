@@ -1,5 +1,5 @@
 # snakepy
-AI powered classic snake game implemented using pygame and Reinforcement learning
+AI powered classic snake game implemented using pygame and Reinforcement learning. You may also like my [Self Driving Car simulation](https://github.com/satwikkansal/smartcab) project developed on similar lines.
 
 ## Usage
 
